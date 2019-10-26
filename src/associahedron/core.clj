@@ -45,7 +45,8 @@
                      (rest t))))
              {p :p :as result} (last t)]
          {:tree   (first (get result p))
-          :weight w})))
+          :weight w
+          :permutation s})))
 
 (defn as-exp [S t]
   (w/postwalk
