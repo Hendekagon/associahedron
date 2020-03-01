@@ -1,6 +1,15 @@
 (ns associahedron.core
+  "
+    Function for computing
+    vertices and edges of the
+    associahedron from the permutahedron
+
+    Rough inefficient code
+
+  "
   (:require
-    [clojure.walk :as w]))
+    [clojure.walk :as w]
+    [clojure.math.combinatorics :as x]))
 
 (defn psi
   "
@@ -53,40 +62,54 @@
     (fn [x]
       (if (vector? x)
         (apply list x)
-        (S x)))
-    t))
+        (S x))) t))
 
-(defn y> [[x y]]
-  (list (first x) (list (last x) y)))
+(defn vy> [[x y]]
+  [(first x) [(last x) y]])
 
-(defn v
+(defn vv
   ([[x y :as l]]
-   (let [lx (list? x) ly (list? y)]
+   (let [lx (vector? x) ly (vector? y)]
      (case [lx ly]
        [true true]
-         (let [xx (v x) yy (v y)]
-           (cons (y> l) (concat (map (fn [t] (list t y)) xx) (map (partial list x) yy))))
+         (let [xx (vv x) yy (vv y)]
+           (into [(vy> l)] (into (mapv (fn [t] [t y]) xx) (mapv (partial vector x) yy))))
        [true false]
-         (if-let [xx (v x)]
-           (cons (y> l) (map (fn [t] (list t y)) xx))
-           [(y> l)])
+         (if-let [xx (vv x)]
+           (into [(vy> l)] (mapv (fn [t] [t y]) xx))
+           [(vy> l)])
        [false true]
-         (if-let [yy (v y)]
-           (mapv (partial list x) yy)
+         (if-let [yy (vv y)]
+           (mapv (partial vector x) yy)
            [])
        [false false]
          []))))
 
-(defn perm-associahedron
+(defn associahedron
+  "
+    Returns the edges
+    of the associahedron
+    for the given symbols
+    by traversing the permutahedron
+    
+    (1N 2N 5N 14N 42N 132N 429N 1430N 4862N 16796N 58786N 208012N 742900N)
+  "
+  ([symbols]
+    (associahedron symbols (into #{} (range 1 (count symbols)))))
   ([symbols S]
-    (mapcat (partial perm-associahedron symbols) S (map vector S) (repeat S)))
-  ([symbols x S' S]
+   (let [pa (map (fn [p] (let [t (psi p) ex (as-exp symbols (:tree t))] (assoc t :exp ex)))
+              (x/permutations (into #{} (range 1 (count symbols)))))]
+     (mapcat (partial associahedron symbols
+              (into {} (map (juxt :tree identity) pa))
+              (into {} (map (juxt :permutation identity) pa)))
+      S (map vector S) (repeat S))))
+  ([symbols tt tp x S' S]
     (mapcat
       (fn [y]
         (into
           (if (== 2 (count S))
-            (let [xp (as-exp symbols (:tree (psi (conj S' y))))]
-              (map (fn [ce] [xp ce]) (v xp)))
+            (let [xp (tp (conj S' y))]
+              (map (fn [ce] [xp (tt ce)]) (vv (:tree xp))))
             [])
-          (perm-associahedron symbols y (conj S' y) (disj S x))))
+          (associahedron symbols tt tp y (conj S' y) (disj S x))))
       (disj S x))))
