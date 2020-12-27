@@ -1,6 +1,7 @@
 /target
 /classes
 /.idea
+*.iml
 pom.xml
 pom.xml.asc
 *.jar

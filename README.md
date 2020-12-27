@@ -15,11 +15,11 @@ The function `psi` computes the weight (vertex) from the given permutation and r
 => {:tree [[0 1] [2 3]], :weight [1 4 1], :permutation [3 1 2]}
 ```
 
-`perm-associahedron` returns all the edges of an associahedron for the given list of symbols and set to be permuted
+`associahedron` returns all the edges of an associahedron for the given list of symbols
 
 
 ```
-(perm-associahedron '[a b c d e] #{1 2 3 4})
+(associahedron '(a b c d e))
 =>
 ([((a b) (c (d e))) (a (b (c (d e))))]
  [(((a b) c) (d e)) ((a b) (c (d e)))]
@@ -65,7 +65,7 @@ The function `psi` computes the weight (vertex) from the given permutation and r
 
 (lio/view
   (apply lg/digraph
-    (perm-associahedron '[a b c d e f] #{1 2 3 4 5})))
+    (associahedron '(a b c d e f))))
 ```
 
 ## License

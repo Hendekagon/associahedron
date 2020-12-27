@@ -11,7 +11,7 @@
     [clojure.walk :as w]
     [clojure.math.combinatorics :as x]))
 
-(defn psi
+(defn ψ
   "
 
    Loday: arXiv:math/0212126v1
@@ -26,7 +26,7 @@
 
   "
   ([s]
-   (psi s
+   (ψ s
     (reductions
       (fn [t i]
         ; [internal-vertex members weight]
@@ -83,7 +83,7 @@
            (mapv (partial vector x) yy)
            [])
        [false false]
-         []))))
+         nil))))
 
 (defn associahedron
   "
@@ -97,8 +97,8 @@
   ([symbols]
     (associahedron symbols (into #{} (range 1 (count symbols)))))
   ([symbols S]
-   (let [pa (map (fn [p] (let [t (psi p) ex (as-exp symbols (:tree t))] (assoc t :exp ex)))
-              (x/permutations (into #{} (range 1 (count symbols)))))]
+   (let [pa (map (fn [p] (let [t (ψ p) ex (as-exp (vec symbols) (:tree t))] (assoc t :exp ex)))
+              (x/permutations S))]
      (mapcat (partial associahedron symbols
               (into {} (map (juxt :tree identity) pa))
               (into {} (map (juxt :permutation identity) pa)))
